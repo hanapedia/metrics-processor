@@ -1,0 +1,17 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rca-experiment-runner
+spec:
+  template:
+    spec:
+      serviceAccountName: rca-experiment-runner-serviceaccount
+      containers:
+      - name: rca-experiment-runner
+        image: docker.io/hiroki11hanada/rca-experiment-runner:v0.0.1
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: rca-experiment-runner-env
+      restartPolicy: Never

@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base
+
+# Env ConfigMap for batch job
+# Env ConfigMap for this(experiment-runner) job
+configMapGenerator:
+- envs:
+  - rca-batch.env
+  name: rca-batch-env
+- envs:
+  - rca-experiment-runner.env
+  name: rca-experiment-runner-env
+
+
+generatorOptions:
+  disableNameSuffixHash: true
+patches:
+- path: job-patch.yaml
+  target:
+    group: batch
+    kind: Job
+    name: rca-experiment-runner
+    version: v1
