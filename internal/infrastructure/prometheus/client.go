@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/hanapedia/metrics-processor/internal/domain"
+	"github.com/hanapedia/metrics-processor/pkg/promql"
 	"github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
@@ -16,7 +17,7 @@ import (
 type PrometheusAdapter struct {
 	client     v1.API
 	queryRange v1.Range
-	queries    []*Query
+	queries    []*promql.Query
 }
 
 func NewPrometheusAdapter(config *domain.Config) (*PrometheusAdapter, error) {
@@ -37,7 +38,7 @@ func NewPrometheusAdapter(config *domain.Config) (*PrometheusAdapter, error) {
 	}, nil
 }
 
-func (pa *PrometheusAdapter) RegisterQuery(query *Query) {
+func (pa *PrometheusAdapter) RegisterQuery(query *promql.Query) {
 	pa.queries = append(pa.queries, query)
 }
 
@@ -50,7 +51,7 @@ func (pa *PrometheusAdapter) Query(metricsChan chan<- *domain.MetricsMatrix) {
 
 	for _, query := range pa.queries {
 		wg.Add(1)
-		go func(q *Query) {
+		go func(q *promql.Query) {
 			defer wg.Done()
 			pa.runQuery(q, metricsChan)
 		}(query)
@@ -62,7 +63,7 @@ func (pa *PrometheusAdapter) Query(metricsChan chan<- *domain.MetricsMatrix) {
 	}()
 }
 
-func (pa *PrometheusAdapter) runQuery(query *Query, metricsChan chan<- *domain.MetricsMatrix) {
+func (pa *PrometheusAdapter) runQuery(query *promql.Query, metricsChan chan<- *domain.MetricsMatrix) {
 	result, warnings, err := pa.client.QueryRange(
 		context.Background(),
 		query.AsString(),
@@ -70,7 +71,7 @@ func (pa *PrometheusAdapter) runQuery(query *Query, metricsChan chan<- *domain.M
 		v1.WithTimeout(5*time.Second),
 	)
 	if err != nil {
-		slog.Error("Query failed", "name", query.name, "error", err, "query", query.AsString())
+		slog.Error("Query failed", "name", query.Name, "error", err, "query", query.AsString())
 		return
 	}
 
@@ -79,9 +80,9 @@ func (pa *PrometheusAdapter) runQuery(query *Query, metricsChan chan<- *domain.M
 	}
 
 	if matrix, ok := result.(model.Matrix); ok {
-		metricsChan <- pa.handleMatrixResult(query.name, &matrix)
+		metricsChan <- pa.handleMatrixResult(query.Name, &matrix)
 	} else {
-		slog.Warn("Query did not return matrix. Skipping.", "name", query.name, "query", query.q)
+		slog.Warn("Query did not return matrix. Skipping.", "name", query.Name, "query", query.AsString())
 	}
 }
 

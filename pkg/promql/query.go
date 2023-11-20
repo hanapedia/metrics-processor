@@ -1,4 +1,4 @@
-package prometheus
+package promql
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 )
 
 type Query struct {
-	name string
+	Name string
 	q    string
 }
 
@@ -25,7 +25,7 @@ func NewQuery(q string) *Query {
 }
 
 func (q *Query) SetName(name string) *Query {
-	q.name = name
+	q.Name = name
 	return q
 }
 

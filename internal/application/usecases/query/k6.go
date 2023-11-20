@@ -3,15 +3,15 @@ package query
 import (
 	"time"
 
-	"github.com/hanapedia/metrics-processor/internal/infrastructure/prometheus"
+	"github.com/hanapedia/metrics-processor/pkg/promql"
 )
 
 // CreateK6IterationRateQuery create query for iteration per second (rps)
-func CreateK6IterationRateQuery(testName string, rateDuration time.Duration) *prometheus.Query {
-	filters := []prometheus.Filter{
-		prometheus.NewFilter("name", "=", testName),
+func CreateK6IterationRateQuery(testName string, rateDuration time.Duration) *promql.Query {
+	filters := []promql.Filter{
+		promql.NewFilter("name", "=", testName),
 	}
-	return prometheus.NewQuery("k6_iteration_duration_avg").
+	return promql.NewQuery("k6_iteration_duration_avg").
 		Filter(filters).
 		Rate(rateDuration).
 		SumBy([]string{"scenario"}).
@@ -19,11 +19,11 @@ func CreateK6IterationRateQuery(testName string, rateDuration time.Duration) *pr
 }
 
 // CreateAvgK6IterationDurationQuery create query for average duration for each request
-func CreateAvgK6IterationDurationQuery(testName string) *prometheus.Query {
-	filters := []prometheus.Filter{
-		prometheus.NewFilter("name", "=", testName),
+func CreateAvgK6IterationDurationQuery(testName string) *promql.Query {
+	filters := []promql.Filter{
+		promql.NewFilter("name", "=", testName),
 	}
-	return prometheus.NewQuery("k6_http_req_duration_avg").
+	return promql.NewQuery("k6_http_req_duration_avg").
 		Filter(filters).
 		SumBy([]string{"scenario"}).
 		MultiplyByConstant(1000).
@@ -31,11 +31,11 @@ func CreateAvgK6IterationDurationQuery(testName string) *prometheus.Query {
 }
 
 // CreateP95K6IterationDurationQuery create query for p95 duration for each request
-func CreateP95K6IterationDurationQuery(testName string) *prometheus.Query {
-	filters := []prometheus.Filter{
-		prometheus.NewFilter("name", "=", testName),
+func CreateP95K6IterationDurationQuery(testName string) *promql.Query {
+	filters := []promql.Filter{
+		promql.NewFilter("name", "=", testName),
 	}
-	return prometheus.NewQuery("k6_http_req_duration_p95").
+	return promql.NewQuery("k6_http_req_duration_p95").
 		Filter(filters).
 		SumBy([]string{"scenario"}).
 		MultiplyByConstant(1000).
@@ -43,11 +43,11 @@ func CreateP95K6IterationDurationQuery(testName string) *prometheus.Query {
 }
 
 // CreateP99K6IterationDurationQuery create query for p99 duration for each request
-func CreateP99K6IterationDurationQuery(testName string) *prometheus.Query {
-	filters := []prometheus.Filter{
-		prometheus.NewFilter("name", "=", testName),
+func CreateP99K6IterationDurationQuery(testName string) *promql.Query {
+	filters := []promql.Filter{
+		promql.NewFilter("name", "=", testName),
 	}
-	return prometheus.NewQuery("k6_http_req_duration_p99").
+	return promql.NewQuery("k6_http_req_duration_p99").
 		Filter(filters).
 		SumBy([]string{"scenario"}).
 		MultiplyByConstant(1000).
@@ -55,11 +55,11 @@ func CreateP99K6IterationDurationQuery(testName string) *prometheus.Query {
 }
 
 // CreateK6BytesSentQuery create query for bytes sent by loadgenerator
-func CreateK6BytesSentQuery(testName string, rateDuration time.Duration) *prometheus.Query {
-	filters := []prometheus.Filter{
-		prometheus.NewFilter("name", "=", testName),
+func CreateK6BytesSentQuery(testName string, rateDuration time.Duration) *promql.Query {
+	filters := []promql.Filter{
+		promql.NewFilter("name", "=", testName),
 	}
-	return prometheus.NewQuery("k6_data_sent_total").
+	return promql.NewQuery("k6_data_sent_total").
 		Filter(filters).
 		Rate(rateDuration).
 		SumBy([]string{"scenario"}).
@@ -67,11 +67,11 @@ func CreateK6BytesSentQuery(testName string, rateDuration time.Duration) *promet
 }
 
 // CreateK6BytesReceivedQuery create query for bytes received by loadgenerator
-func CreateK6BytesReceivedQuery(testName string, rateDuration time.Duration) *prometheus.Query {
-	filters := []prometheus.Filter{
-		prometheus.NewFilter("name", "=", testName),
+func CreateK6BytesReceivedQuery(testName string, rateDuration time.Duration) *promql.Query {
+	filters := []promql.Filter{
+		promql.NewFilter("name", "=", testName),
 	}
-	return prometheus.NewQuery("k6_data_received_total").
+	return promql.NewQuery("k6_data_received_total").
 		Filter(filters).
 		Rate(rateDuration).
 		SumBy([]string{"scenario"}).

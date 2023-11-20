@@ -3,16 +3,16 @@ package query
 import (
 	"time"
 
-	"github.com/hanapedia/metrics-processor/internal/infrastructure/prometheus"
+	"github.com/hanapedia/metrics-processor/pkg/promql"
 )
 
 // CreateCpuUsageQuery create query for cpu usage of a deployment
-func CreateCpuUsageQuery(namespace, containers string, rateDuration time.Duration) *prometheus.Query {
-	filters := []prometheus.Filter{
-		prometheus.NewFilter("namespace", "=", namespace),
-		prometheus.NewFilter("container", "=~", containers),
+func CreateCpuUsageQuery(namespace, containers string, rateDuration time.Duration) *promql.Query {
+	filters := []promql.Filter{
+		promql.NewFilter("namespace", "=", namespace),
+		promql.NewFilter("container", "=~", containers),
 	}
-	usage := prometheus.NewQuery("container_cpu_usage_seconds_total").
+	usage := promql.NewQuery("container_cpu_usage_seconds_total").
 		Filter(filters).
 		Rate(rateDuration).
 		LabelReplace("deployment", "pod", "(.*)-[^-]+-[^-]+").
@@ -24,12 +24,12 @@ func CreateCpuUsageQuery(namespace, containers string, rateDuration time.Duratio
 }
 
 // CreateMemoryUsageQuery create query for memory usage of a deployment
-func CreateMemoryUsageQuery(namespace, containers string) *prometheus.Query {
-	filters := []prometheus.Filter{
-		prometheus.NewFilter("namespace", "=", namespace),
-		prometheus.NewFilter("container", "=~", containers),
+func CreateMemoryUsageQuery(namespace, containers string) *promql.Query {
+	filters := []promql.Filter{
+		promql.NewFilter("namespace", "=", namespace),
+		promql.NewFilter("container", "=~", containers),
 	}
-	usage := prometheus.NewQuery("container_memory_working_set_bytes").
+	usage := promql.NewQuery("container_memory_working_set_bytes").
 		Filter(filters).
 		LabelReplace("deployment", "pod", "(.*)-[^-]+-[^-]+").
 		SumBy([]string{"deployment"})
@@ -42,13 +42,13 @@ func CreateMemoryUsageQuery(namespace, containers string) *prometheus.Query {
 // limitQuery create query for resource limit of
 // a resource set on specified containers in a namespace
 // and sum them by owner deployemnt.
-func limitQuery(namespace, containers, resource string) *prometheus.Query {
-	filters := []prometheus.Filter{
-		prometheus.NewFilter("namespace", "=", namespace),
-		prometheus.NewFilter("container", "=~", containers),
-		prometheus.NewFilter("resource", "=", resource),
+func limitQuery(namespace, containers, resource string) *promql.Query {
+	filters := []promql.Filter{
+		promql.NewFilter("namespace", "=", namespace),
+		promql.NewFilter("container", "=~", containers),
+		promql.NewFilter("resource", "=", resource),
 	}
-	return prometheus.NewQuery("kube_pod_container_resource_limits").
+	return promql.NewQuery("kube_pod_container_resource_limits").
 		Filter(filters).
 		LabelReplace("deployment", "pod", "(.*)-[^-]+-[^-]+").
 		SumBy([]string{"deployment"})

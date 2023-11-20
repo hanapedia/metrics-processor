@@ -7,6 +7,7 @@ import (
 	"github.com/hanapedia/metrics-processor/internal/application/usecases/query"
 	"github.com/hanapedia/metrics-processor/internal/domain"
 	"github.com/hanapedia/metrics-processor/internal/infrastructure/prometheus"
+	"github.com/hanapedia/metrics-processor/pkg/promql"
 )
 
 func PrometheusQueryAdapter(config *domain.Config) *prometheus.PrometheusAdapter {
@@ -18,7 +19,7 @@ func PrometheusQueryAdapter(config *domain.Config) *prometheus.PrometheusAdapter
 
 	rateDuration := config.Step * 4
 
-	queries := []*prometheus.Query{
+	queries := []*promql.Query{
 		// server metrics
 		query.CreateAvgServerLatencyQuery(config.Namespace, rateDuration),
 		// query.CreatePercentileServerLatencyQuery(config.Namespace, rateDuration, 0.95),
