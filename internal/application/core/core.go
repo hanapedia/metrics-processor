@@ -4,6 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/hanapedia/metrics-processor/internal/application/port"
+	"github.com/hanapedia/metrics-processor/internal/domain"
 )
 
 type MetricsProcessor struct {
@@ -18,17 +19,11 @@ func NewMetricsProcessor(query port.MetricsQueryPort, storage port.MetricsStorag
 	}
 }
 
-func (ms *MetricsProcessor) Process() error {
-	metrics, err := ms.query.Query()
-	if err != nil {
-		return err
-	}
+func (ms *MetricsProcessor) Process() {
+	metricsChan := make(chan *domain.MetricsMatrix, ms.query.Len())
+	ms.query.Query(metricsChan)
 	slog.Info("Metrics queried")
 
-	if err = ms.storage.Save(metrics); err != nil {
-		return err
-	}
+	ms.storage.Save(metricsChan)
 	slog.Info("Metrics saved")
-
-	return nil
 }

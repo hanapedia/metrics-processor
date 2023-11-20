@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/hanapedia/metrics-processor/internal/domain"
@@ -16,7 +17,6 @@ type PrometheusAdapter struct {
 	client     v1.API
 	queryRange v1.Range
 	queries    []*Query
-	metrics    *domain.Metrics
 }
 
 func NewPrometheusAdapter(config *domain.Config) (*PrometheusAdapter, error) {
@@ -34,10 +34,6 @@ func NewPrometheusAdapter(config *domain.Config) (*PrometheusAdapter, error) {
 			End:   config.EndTime,
 			Step:  config.Step,
 		},
-		metrics: &domain.Metrics{
-			QueryConfig: config,
-			Data:        make(map[string]domain.MetricsMatrix),
-		},
 	}, nil
 }
 
@@ -45,34 +41,53 @@ func (pa *PrometheusAdapter) RegisterQuery(query *Query) {
 	pa.queries = append(pa.queries, query)
 }
 
-func (pa *PrometheusAdapter) Query() (*domain.Metrics, error) {
-	for _, query := range pa.queries {
-		result, warnings, err := pa.client.QueryRange(
-			context.Background(),
-			query.AsString(),
-			pa.queryRange,
-			v1.WithTimeout(5*time.Second),
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, warning := range warnings {
-			slog.Warn(warning)
-		}
-
-		if matrix, ok := result.(model.Matrix); ok {
-			pa.handleMatrixResult(query.name, &matrix)
-		} else {
-			slog.Warn("Query did not return matrix. Skipping.", "name", query.name, "query", query.q)
-			continue
-		}
-	}
-	return pa.metrics, nil
+func (pa *PrometheusAdapter) Len() int {
+	return len(pa.queries)
 }
 
-func (pa *PrometheusAdapter) handleMatrixResult(name string, matrix *model.Matrix) {
+func (pa *PrometheusAdapter) Query(metricsChan chan<- *domain.MetricsMatrix) {
+	var wg sync.WaitGroup
+
+	for _, query := range pa.queries {
+		wg.Add(1)
+		go func(q *Query) {
+			defer wg.Done()
+			pa.runQuery(q, metricsChan)
+		}(query)
+	}
+
+	go func() {
+		wg.Wait()
+		close(metricsChan)
+	}()
+}
+
+func (pa *PrometheusAdapter) runQuery(query *Query, metricsChan chan<- *domain.MetricsMatrix) {
+	result, warnings, err := pa.client.QueryRange(
+		context.Background(),
+		query.AsString(),
+		pa.queryRange,
+		v1.WithTimeout(5*time.Second),
+	)
+	if err != nil {
+		slog.Error("Query failed", "name", query.name, "error", err, "query", query.AsString())
+		return
+	}
+
+	for _, warning := range warnings {
+		slog.Warn(warning)
+	}
+
+	if matrix, ok := result.(model.Matrix); ok {
+		metricsChan <- pa.handleMatrixResult(query.name, &matrix)
+	} else {
+		slog.Warn("Query did not return matrix. Skipping.", "name", query.name, "query", query.q)
+	}
+}
+
+func (pa *PrometheusAdapter) handleMatrixResult(name string, matrix *model.Matrix) *domain.MetricsMatrix {
 	metricsMatrix := domain.MetricsMatrix{
+		Name:       name,
 		LabelType:  "",
 		Matrix:     make(map[string][]float64),
 		Timestamps: []int64{},
@@ -85,7 +100,7 @@ func (pa *PrometheusAdapter) handleMatrixResult(name string, matrix *model.Matri
 		label := extractLabelValue(sampleStream.Metric)
 		metricsMatrix.Matrix[label] = extractSampleValues(sampleStream.Values)
 	}
-	pa.metrics.Data[name] = metricsMatrix
+	return &metricsMatrix
 }
 
 func extractLabelType(metric model.Metric) string {
