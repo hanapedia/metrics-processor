@@ -11,6 +11,7 @@ type EnvVars struct {
 	END_TIME               string
 	DURATION               string
 	STEP                   string
+	AWS_REGION             string
 	S3_BUCKET              string
 	TEST_NAME              string
 	NAMESPACE              string
@@ -22,6 +23,7 @@ var defaults = EnvVars{
 	END_TIME:               "",
 	DURATION:               "30m",
 	STEP:                   "15s",
+	AWS_REGION:             "ap-northeast-1",
 	S3_BUCKET:              "test",
 	TEST_NAME:              "test",
 	NAMESPACE:              "emulation",
@@ -44,6 +46,7 @@ func loadEnvVariables() *EnvVars {
 		END_TIME:               readEnv("END_TIME", defaults.END_TIME),
 		DURATION:               readEnv("DURATION", defaults.DURATION),
 		STEP:                   readEnv("STEP", defaults.STEP),
+		AWS_REGION:             readEnv("AWS_REGION", defaults.AWS_REGION),
 		S3_BUCKET:              readEnv("S3_BUCKET", defaults.S3_BUCKET),
 		TEST_NAME:              readEnv("TEST_NAME", defaults.TEST_NAME),
 		NAMESPACE:              readEnv("NAMESPACE", defaults.NAMESPACE),

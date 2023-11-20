@@ -38,6 +38,7 @@ func NewConfigFromEnv() *domain.Config {
 		EndTime:              endTime,
 		Duration:             duration,
 		Step:                 step,
+		AWSRegion:            GetEnvs().AWS_REGION,
 		S3Bucket:             GetEnvs().S3_BUCKET,
 		TestName:             GetEnvs().TEST_NAME,
 		Namespace:            GetEnvs().NAMESPACE,
