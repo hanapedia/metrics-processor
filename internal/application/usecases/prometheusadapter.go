@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"log/slog"
+	"os"
 
 	"github.com/hanapedia/metrics-processor/internal/application/usecases/query"
 	"github.com/hanapedia/metrics-processor/internal/domain"
@@ -12,6 +13,7 @@ func PrometheusQueryAdapter(config *domain.Config) *prometheus.PrometheusAdapter
 	prometheusAdapter, err := prometheus.NewPrometheusAdapter(config)
 	if err != nil {
 		slog.Error("Failed to create new Prometheus adapter", "err", err)
+		os.Exit(1)
 	}
 
 	rateDuration := config.Step * 4
