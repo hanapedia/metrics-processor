@@ -8,13 +8,13 @@ import (
 )
 
 type MetricsProcessor struct {
-	query port.MetricsQueryPort
+	query   port.MetricsQueryPort
 	storage port.MetricsStoragePort
 }
 
 func NewMetricsProcessor(query port.MetricsQueryPort, storage port.MetricsStoragePort) *MetricsProcessor {
 	return &MetricsProcessor{
-		query: query,
+		query:   query,
 		storage: storage,
 	}
 }
