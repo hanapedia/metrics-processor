@@ -11,7 +11,7 @@ func CreateK6IterationRateQuery(testName string, rateDuration time.Duration) *pr
 	filters := []promql.Filter{
 		promql.NewFilter("name", "=", testName),
 	}
-	return promql.NewQuery("k6_iteration_duration_avg").
+	return promql.NewQuery("k6_iterations_total").
 		Filter(filters).
 		Rate(rateDuration).
 		SumBy([]string{"scenario"}).

@@ -22,7 +22,6 @@ func NewS3Adapter(config *domain.Config) (*S3Adapter, error) {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(config.AWSRegion)},
 	)
-
 	if err != nil {
 		return nil, err
 	}
