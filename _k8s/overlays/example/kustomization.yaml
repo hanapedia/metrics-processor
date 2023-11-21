@@ -4,23 +4,12 @@ kind: Kustomization
 resources:
 - ../../base
 
-# Env ConfigMap for batch job
-# Env ConfigMap for this(experiment-runner) job
+namespace: experiment
+
 configMapGenerator:
 - envs:
-  - rca-batch.env
-  name: rca-batch-env
-- envs:
-  - rca-experiment-runner.env
-  name: rca-experiment-runner-env
-
+  - metrics-processor.env
+  name: metrics-processor-env
 
 generatorOptions:
   disableNameSuffixHash: true
-patches:
-- path: job-patch.yaml
-  target:
-    group: batch
-    kind: Job
-    name: rca-experiment-runner
-    version: v1

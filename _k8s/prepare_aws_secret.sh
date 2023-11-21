@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SECRET_NAME=aws-credentials
-NAMESPACE=rca
+NAMESPACE=experiment
 
 # Initial check for the secret
 if kubectl -n $NAMESPACE get secret $SECRET_NAME >/dev/null 2>&1; then

@@ -1,17 +1,25 @@
----
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: rca-experiment-runner
+  name: metrics-processor
 spec:
   template:
     spec:
-      serviceAccountName: rca-experiment-runner-serviceaccount
       containers:
-      - name: rca-experiment-runner
-        image: docker.io/hiroki11hanada/rca-experiment-runner:v0.0.1
-        imagePullPolicy: Always
+      - name: metrics-processor
+        image: hiroki11hanada/metrics-processor:v0.0.2
         envFrom:
         - configMapRef:
-            name: rca-experiment-runner-env
+            name: metrics-processor-env
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: aws_access_key_id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: aws_secret_access_key
       restartPolicy: Never
