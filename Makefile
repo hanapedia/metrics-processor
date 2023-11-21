@@ -1,6 +1,6 @@
 # Variables
 DOCKER_HUB_USERNAME := hiroki11hanada
-REPOSITORY_NAME := rca-experiment-runner
+REPOSITORY_NAME := metrics-processor
 TAG ?= latest
 IMAGE_NAME := $(DOCKER_HUB_USERNAME)/$(REPOSITORY_NAME):$(TAG)
 
