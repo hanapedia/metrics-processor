@@ -28,7 +28,7 @@ func NewS3Adapter(config *domain.Config) (*S3Adapter, error) {
 	return &S3Adapter{
 		client:       s3.New(sess),
 		bucketName:   config.S3Bucket,
-		keyParentDir: config.TestName,
+		keyParentDir: config.S3BucketDir,
 	}, nil
 }
 

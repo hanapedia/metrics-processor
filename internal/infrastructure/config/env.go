@@ -13,7 +13,8 @@ type EnvVars struct {
 	STEP                   string
 	AWS_REGION             string
 	S3_BUCKET              string
-	TEST_NAME              string
+	S3_BUCKET_DIR          string
+	K6_TEST_NAME           string
 	NAMESPACE              string
 	WORKLOAD_CONTAINERS    string
 }
@@ -25,7 +26,8 @@ var defaults = EnvVars{
 	STEP:                   "15s",
 	AWS_REGION:             "ap-northeast-1",
 	S3_BUCKET:              "test",
-	TEST_NAME:              "test",
+	S3_BUCKET_DIR:          "test",
+	K6_TEST_NAME:           "test",
 	NAMESPACE:              "emulation",
 	WORKLOAD_CONTAINERS:    "server|redis",
 }
@@ -48,7 +50,8 @@ func loadEnvVariables() *EnvVars {
 		STEP:                   readEnv("STEP", defaults.STEP),
 		AWS_REGION:             readEnv("AWS_REGION", defaults.AWS_REGION),
 		S3_BUCKET:              readEnv("S3_BUCKET", defaults.S3_BUCKET),
-		TEST_NAME:              readEnv("TEST_NAME", defaults.TEST_NAME),
+		S3_BUCKET_DIR:          readEnv("S3_BUCKET_DIR", defaults.S3_BUCKET_DIR),
+		K6_TEST_NAME:           readEnv("K6_TEST_NAME", defaults.K6_TEST_NAME),
 		NAMESPACE:              readEnv("NAMESPACE", defaults.NAMESPACE),
 		WORKLOAD_CONTAINERS:    readEnv("WORKLOAD_CONTAINERS", defaults.WORKLOAD_CONTAINERS),
 	}

@@ -22,29 +22,29 @@ func PrometheusQueryAdapter(config *domain.Config) *prometheus.PrometheusAdapter
 	queries := []*promql.Query{
 		// server metrics
 		query.CreateAvgServerLatencyQuery(config.Namespace, rateDuration),
-		// query.CreatePercentileServerLatencyQuery(config.Namespace, rateDuration, 0.95),
-		// query.CreatePercentileServerLatencyQuery(config.Namespace, rateDuration, 0.99),
-		// query.CreateServerReadBytesQuery(config.Namespace, rateDuration),
-		// query.CreateServerWriteBytesQuery(config.Namespace, rateDuration),
+		query.CreatePercentileServerLatencyQuery(config.Namespace, rateDuration, 0.95),
+		query.CreatePercentileServerLatencyQuery(config.Namespace, rateDuration, 0.99),
+		query.CreateServerReadBytesQuery(config.Namespace, rateDuration),
+		query.CreateServerWriteBytesQuery(config.Namespace, rateDuration),
 
 		// client metrics
-		// query.CreateAvgClientLatencyQuery(config.Namespace, rateDuration),
-		// query.CreatePercentileClientLatencyQuery(config.Namespace, rateDuration, 0.95),
-		// query.CreatePercentileClientLatencyQuery(config.Namespace, rateDuration, 0.99),
-		// query.CreateClientReadBytesQuery(config.Namespace, rateDuration),
-		// query.CreateClientWriteBytesQuery(config.Namespace, rateDuration),
+		query.CreateAvgClientLatencyQuery(config.Namespace, rateDuration),
+		query.CreatePercentileClientLatencyQuery(config.Namespace, rateDuration, 0.95),
+		query.CreatePercentileClientLatencyQuery(config.Namespace, rateDuration, 0.99),
+		query.CreateClientReadBytesQuery(config.Namespace, rateDuration),
+		query.CreateClientWriteBytesQuery(config.Namespace, rateDuration),
 
 		// resource metrics
-		// query.CreateCpuUsageQuery(config.Namespace, config.WorkloadContainers, rateDuration),
-		// query.CreateMemoryUsageQuery(config.Namespace, config.WorkloadContainers),
+		query.CreateCpuUsageQuery(config.Namespace, config.WorkloadContainers, rateDuration),
+		query.CreateMemoryUsageQuery(config.Namespace, config.WorkloadContainers),
 
 		// k6 metrics
-		query.CreateK6IterationRateQuery(config.TestName, rateDuration),
-		// query.CreateK6BytesReceivedQuery(config.TestName, rateDuration),
-		// query.CreateK6BytesSentQuery(config.TestName, rateDuration),
-		// query.CreateAvgK6IterationDurationQuery(config.TestName),
-		// query.CreateP95K6IterationDurationQuery(config.TestName),
-		// query.CreateP99K6IterationDurationQuery(config.TestName),
+		query.CreateK6IterationRateQuery(config.K6TestName, rateDuration),
+		query.CreateK6BytesReceivedQuery(config.K6TestName, rateDuration),
+		query.CreateK6BytesSentQuery(config.K6TestName, rateDuration),
+		query.CreateAvgK6IterationDurationQuery(config.K6TestName),
+		query.CreateP95K6IterationDurationQuery(config.K6TestName),
+		query.CreateP99K6IterationDurationQuery(config.K6TestName),
 	}
 
 	for _, query := range queries {

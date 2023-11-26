@@ -40,7 +40,8 @@ func NewConfigFromEnv() *domain.Config {
 		Step:                 step,
 		AWSRegion:            GetEnvs().AWS_REGION,
 		S3Bucket:             GetEnvs().S3_BUCKET,
-		TestName:             GetEnvs().TEST_NAME,
+		S3BucketDir:          GetEnvs().S3_BUCKET_DIR,
+		K6TestName:           GetEnvs().K6_TEST_NAME,
 		Namespace:            GetEnvs().NAMESPACE,
 		WorkloadContainers:   GetEnvs().WORKLOAD_CONTAINERS,
 	}

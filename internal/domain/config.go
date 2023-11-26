@@ -9,7 +9,8 @@ type Config struct {
 	Step                 time.Duration
 	AWSRegion            string
 	S3Bucket             string
-	TestName             string
+	S3BucketDir          string
+	K6TestName           string
 	Namespace            string
 	WorkloadContainers   string
 }
