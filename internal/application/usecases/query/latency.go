@@ -16,7 +16,7 @@ func CreateAvgServerLatencyQuery(namespace string, rateDuration time.Duration) *
 // CreatePercentileServerLatencyQuery creates query for percentile server response time
 func CreatePercentileServerLatencyQuery(namespace string, rateDuration time.Duration, percentile float32) *promql.Query {
 	percentileInt := int(percentile * 100)
-	return createAvgLatencyQuery(namespace, rateDuration, "inbound").
+	return createPercentileLatencyQuery(namespace, rateDuration, "inbound", percentile).
 		SetName(fmt.Sprintf("p%v_server_latency_ms", percentileInt))
 }
 
@@ -29,7 +29,7 @@ func CreateAvgClientLatencyQuery(namespace string, rateDuration time.Duration) *
 // CreatePercentileServerLatencyQuery creates query for percentile server response time
 func CreatePercentileClientLatencyQuery(namespace string, rateDuration time.Duration, percentile float32) *promql.Query {
 	percentileInt := int(percentile * 100)
-	return createAvgLatencyQuery(namespace, rateDuration, "outbound").
+	return createPercentileLatencyQuery(namespace, rateDuration, "outbound", percentile).
 		SetName(fmt.Sprintf("p%v_client_latency_ms", percentileInt))
 }
 
