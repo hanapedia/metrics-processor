@@ -63,6 +63,6 @@ func createPercentileLatencyQuery(namespace string, rateDuration time.Duration, 
 	return promql.NewQuery("response_latency_ms_bucket").
 		Filter(filters).
 		Rate(rateDuration).
-		SumBy([]string{"deployment"}).
-		HistogramQuantile(percentile)
+		HistogramQuantile(percentile).
+		SumBy([]string{"deployment"})
 }

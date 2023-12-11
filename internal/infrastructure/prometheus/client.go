@@ -64,6 +64,7 @@ func (pa *PrometheusAdapter) Query(metricsChan chan<- *domain.MetricsMatrix) {
 }
 
 func (pa *PrometheusAdapter) runQuery(query *promql.Query, metricsChan chan<- *domain.MetricsMatrix) {
+	slog.Info("Running Query.", "name", query.Name, "query", query.AsString())
 	result, warnings, err := pa.client.QueryRange(
 		context.Background(),
 		query.AsString(),

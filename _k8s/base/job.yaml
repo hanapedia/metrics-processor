@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
       - name: metrics-processor
-        image: hiroki11hanada/metrics-processor:v0.0.2
+        image: hiroki11hanada/metrics-processor:v1.0.2
         envFrom:
         - configMapRef:
             name: metrics-processor-env
@@ -22,4 +22,6 @@ spec:
             secretKeyRef:
               name: aws-credentials
               key: aws_secret_access_key
+        - name: TZ
+          value: "Asia/Tokyo"
       restartPolicy: Never
