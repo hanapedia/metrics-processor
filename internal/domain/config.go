@@ -3,7 +3,7 @@ package domain
 import "time"
 
 type Config struct {
-	MetricsQueryEndpoing string
+	MetricsQueryEndpoint string
 	EndTime              time.Time
 	Duration             time.Duration
 	Step                 time.Duration

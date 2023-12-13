@@ -39,6 +39,7 @@ func createAvgLatencyQuery(namespace string, rateDuration time.Duration, directi
 		promql.NewFilter("namespace", "=", namespace),
 		promql.NewFilter("direction", "=", direction),
 		promql.NewFilter("target_port", "!=", "4191"),
+		promql.NewFilter("status_code", "!=", ""),
 	}
 	sum := promql.NewQuery("response_latency_ms_sum").
 		Filter(filters).
@@ -59,6 +60,7 @@ func createPercentileLatencyQuery(namespace string, rateDuration time.Duration, 
 		promql.NewFilter("namespace", "=", namespace),
 		promql.NewFilter("direction", "=", direction),
 		promql.NewFilter("target_port", "!=", "4191"),
+		promql.NewFilter("status_code", "!=", ""),
 	}
 	return promql.NewQuery("response_latency_ms_bucket").
 		Filter(filters).

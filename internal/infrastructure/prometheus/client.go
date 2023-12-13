@@ -3,6 +3,7 @@ package prometheus
 import (
 	"context"
 	"log/slog"
+	"math"
 	"strings"
 	"sync"
 	"time"
@@ -22,7 +23,7 @@ type PrometheusAdapter struct {
 
 func NewPrometheusAdapter(config *domain.Config) (*PrometheusAdapter, error) {
 	client, err := api.NewClient(api.Config{
-		Address: config.MetricsQueryEndpoing,
+		Address: config.MetricsQueryEndpoint,
 	})
 	if err != nil {
 		return nil, err
@@ -102,6 +103,9 @@ func (pa *PrometheusAdapter) handleMatrixResult(name string, matrix *model.Matri
 		label := extractLabelValue(sampleStream.Metric)
 		metricsMatrix.Matrix[label] = extractSampleValues(sampleStream.Values)
 	}
+
+	// replace NaN
+
 	return &metricsMatrix
 }
 
@@ -131,8 +135,17 @@ func extractTimestamps(samples []model.SamplePair) []int64 {
 
 func extractSampleValues(samples []model.SamplePair) []float64 {
 	values := []float64{}
+	var lastValue float64 = 0
 	for _, sample := range samples {
-		values = append(values, float64(sample.Value))
+		thisValue := float64(sample.Value)
+		// if NaN, use last non NaN value
+		if math.IsNaN(thisValue) {
+			thisValue = lastValue
+		} else {
+			lastValue = thisValue
+		}
+
+		values = append(values, thisValue)
 	}
 	return values
 }

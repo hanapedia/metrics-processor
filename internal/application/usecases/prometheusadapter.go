@@ -17,7 +17,7 @@ func PrometheusQueryAdapter(config *domain.Config) *prometheus.PrometheusAdapter
 		os.Exit(1)
 	}
 
-	rateDuration := config.Step * 4
+	rateDuration := config.Step * 16
 
 	queries := []*promql.Query{
 		// server metrics

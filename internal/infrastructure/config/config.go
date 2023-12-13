@@ -34,7 +34,7 @@ func NewConfigFromEnv() *domain.Config {
 	}
 
 	return &domain.Config{
-		MetricsQueryEndpoing: GetEnvs().METRICS_QUERY_ENDPOINT,
+		MetricsQueryEndpoint: GetEnvs().METRICS_QUERY_ENDPOINT,
 		EndTime:              endTime,
 		Duration:             duration,
 		Step:                 step,
