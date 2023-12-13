@@ -27,6 +27,11 @@ func PrometheusQueryAdapter(config *domain.Config) *prometheus.PrometheusAdapter
 		query.CreateServerReadBytesQuery(config.Namespace, rateDuration),
 		query.CreateServerWriteBytesQuery(config.Namespace, rateDuration),
 
+		// server latency from client
+		query.CreateAvgServerLatencyFromClientQuery(config.Namespace, rateDuration),
+		query.CreatePercentileServerLatencyFromClientQuery(config.Namespace, rateDuration, 0.95),
+		query.CreatePercentileServerLatencyFromClientQuery(config.Namespace, rateDuration, 0.99),
+
 		// client metrics
 		query.CreateAvgClientLatencyQuery(config.Namespace, rateDuration),
 		query.CreatePercentileClientLatencyQuery(config.Namespace, rateDuration, 0.95),

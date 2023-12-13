@@ -68,3 +68,41 @@ func createPercentileLatencyQuery(namespace string, rateDuration time.Duration, 
 		HistogramQuantile(percentile).
 		SumBy([]string{"deployment"})
 }
+
+// CreateAvgServerLatencyFromClientQuery creates query for average server response time
+func CreateAvgServerLatencyFromClientQuery(namespace string, rateDuration time.Duration) *promql.Query {
+	filters := []promql.Filter{
+		promql.NewFilter("namespace", "=", namespace),
+		promql.NewFilter("direction", "=", "outbound"),
+		promql.NewFilter("target_port", "!=", "4191"),
+		promql.NewFilter("status_code", "!=", ""),
+	}
+	sum := promql.NewQuery("response_latency_ms_sum").
+		Filter(filters).
+		Rate(rateDuration).
+		SumBy([]string{"dst_service"})
+
+	count := promql.NewQuery("response_latency_ms_count").
+		Filter(filters).
+		Rate(rateDuration).
+		SumBy([]string{"dst_service"})
+
+	return sum.Divide(count).SetName("avg_server_latency_from_client_ms")
+}
+
+// CreatePercentileServerLatencyFromClientQuery creates query for percentile server response time
+func CreatePercentileServerLatencyFromClientQuery(namespace string, rateDuration time.Duration, percentile float32) *promql.Query {
+	percentileInt := int(percentile * 100)
+	filters := []promql.Filter{
+		promql.NewFilter("namespace", "=", namespace),
+		promql.NewFilter("direction", "=", "outbound"),
+		promql.NewFilter("target_port", "!=", "4191"),
+		promql.NewFilter("status_code", "!=", ""),
+	}
+	return promql.NewQuery("response_latency_ms_bucket").
+		Filter(filters).
+		Rate(rateDuration).
+		HistogramQuantile(percentile).
+		SumBy([]string{"dst_service"}).
+		SetName(fmt.Sprintf("p%v_server_latency_from_client_ms", percentileInt))
+}
