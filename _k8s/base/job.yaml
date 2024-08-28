@@ -7,7 +7,9 @@ spec:
     spec:
       containers:
       - name: metrics-processor
-        image: hiroki11hanada/metrics-processor:v1.0.2
+        image: hexagonbenchmark/metrics-processor:test
+        imagePullPolicy: Always
+        command: ["./main", "hexagon"]
         envFrom:
         - configMapRef:
             name: metrics-processor-env
