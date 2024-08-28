@@ -13,12 +13,7 @@ func NewConfigFromEnv() *domain.Config {
 	if GetEnvs().END_TIME == "" {
 		endTime = time.Now()
 	} else {
-		unixTimeStr, err := strconv.ParseInt(GetEnvs().END_TIME, 10, 64)
-		if err != nil {
-			slog.Warn("Failed to parse END_TIME. Using time.Now()", "err", err)
-			endTime = time.Now()
-		}
-		endTime = time.Unix(unixTimeStr, 0)
+		endTime = parseStringUnixMilliSecTimestamp(GetEnvs().END_TIME)
 	}
 
 	duration, err := time.ParseDuration(GetEnvs().DURATION)
@@ -45,4 +40,16 @@ func NewConfigFromEnv() *domain.Config {
 		Namespace:            GetEnvs().NAMESPACE,
 		WorkloadContainers:   GetEnvs().WORKLOAD_CONTAINERS,
 	}
+}
+
+func parseStringUnixMilliSecTimestamp(timestamp string) time.Time {
+	unixTimeStr, err := strconv.ParseInt(timestamp, 10, 64)
+	if err != nil {
+		slog.Warn("Failed to parse END_TIME. Using time.Now()", "err", err)
+		return time.Now()
+	}
+	if len(timestamp) == 13 {
+		return time.UnixMilli(unixTimeStr)
+	}
+	return time.Unix(unixTimeStr, 0)
 }

@@ -29,10 +29,14 @@ func NewPrometheusAdapter(config *domain.Config) (*PrometheusAdapter, error) {
 		return nil, err
 	}
 
+	start := config.EndTime.Add(-1 * config.Duration)
+
+	slog.Info("Query Range set.", "start", start, "end", config.EndTime)
+
 	return &PrometheusAdapter{
 		client: v1.NewAPI(client),
 		queryRange: v1.Range{
-			Start: config.EndTime.Add(-1 * config.Duration),
+			Start: start,
 			End:   config.EndTime,
 			Step:  config.Step,
 		},
