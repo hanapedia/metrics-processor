@@ -14,9 +14,22 @@ func CreateK6IterationRateQuery(testName string, rateDuration time.Duration) *pr
 	return promql.NewQuery("k6_iterations_total").
 		Filter(filters).
 		Rate(rateDuration).
-		SumBy([]string{"scenario"}).
+		/* SumBy([]string{"scenario"}). */
 		SetName("lg_iteration_rate")
 }
+
+// CreateK6DroppedIterationRateQuery create query for iteration per second (rps)
+func CreateK6DroppedIterationRateQuery(testName string, rateDuration time.Duration) *promql.Query {
+	filters := []promql.Filter{
+		promql.NewFilter("name", "=", testName),
+	}
+	return promql.NewQuery("k6_dropped_iterations_total").
+		Filter(filters).
+		Rate(rateDuration).
+		/* SumBy([]string{"scenario"}). */
+		SetName("lg_iteration_rate")
+}
+
 
 // CreateAvgK6IterationDurationQuery create query for average duration for each request
 func CreateAvgK6IterationDurationQuery(testName string) *promql.Query {

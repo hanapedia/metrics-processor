@@ -40,8 +40,15 @@ func PrometheusQueryAdapter(config *domain.Config) *prometheus.PrometheusAdapter
 		query.CreateClientWriteBytesQuery(config.Namespace, rateDuration),
 
 		// resource metrics
-		query.CreateCpuUsageQuery(config.Namespace, config.WorkloadContainers, rateDuration),
-		query.CreateMemoryUsageQuery(config.Namespace, config.WorkloadContainers),
+		query.CreateCpuUsageQuery([]promql.Filter{
+			promql.NewFilter("namespace", "=", config.Namespace),
+			promql.NewFilter("container", "=", config.WorkloadContainers),
+		},
+			rateDuration),
+		query.CreateMemoryUsageQuery([]promql.Filter{
+			promql.NewFilter("namespace", "=", config.Namespace),
+			promql.NewFilter("container", "=", config.WorkloadContainers),
+		}),
 
 		// k6 metrics
 		query.CreateK6IterationRateQuery(config.K6TestName, rateDuration),
