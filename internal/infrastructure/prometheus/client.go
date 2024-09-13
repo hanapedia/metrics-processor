@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"math"
-	"strings"
 	"sync"
 	"time"
 
@@ -95,38 +94,17 @@ func (pa *PrometheusAdapter) runQuery(query *promql.Query, metricsChan chan<- *d
 func (pa *PrometheusAdapter) handleMatrixResult(name string, matrix *model.Matrix) *domain.MetricsMatrix {
 	metricsMatrix := domain.MetricsMatrix{
 		Name:       name,
-		LabelType:  "",
 		Matrix:     make(map[string][]float64),
 		Timestamps: []int64{},
 	}
 	for i, sampleStream := range *matrix {
 		if i == 0 {
-			metricsMatrix.LabelType = extractLabelType(sampleStream.Metric)
 			metricsMatrix.Timestamps = extractTimestamps(sampleStream.Values)
 		}
-		label := extractLabelValue(sampleStream.Metric)
-		metricsMatrix.Matrix[label] = extractSampleValues(sampleStream.Values)
+		metricsMatrix.Matrix[sampleStream.Metric.String()] = extractSampleValues(sampleStream.Values)
 	}
-
-	// replace NaN
 
 	return &metricsMatrix
-}
-
-func extractLabelType(metric model.Metric) string {
-	keys := []string{}
-	for k := range metric {
-		keys = append(keys, string(k))
-	}
-	return strings.Join(keys, "_")
-}
-
-func extractLabelValue(metric model.Metric) string {
-	values := []string{}
-	for _, v := range metric {
-		values = append(values, string(v))
-	}
-	return strings.Join(values, "_")
 }
 
 func extractTimestamps(samples []model.SamplePair) []int64 {
