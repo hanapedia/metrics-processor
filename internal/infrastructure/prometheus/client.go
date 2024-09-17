@@ -2,6 +2,7 @@ package prometheus
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"math"
 	"sync"
@@ -48,6 +49,12 @@ func (pa *PrometheusAdapter) RegisterQuery(query *promql.Query) {
 
 func (pa *PrometheusAdapter) Len() int {
 	return len(pa.queries)
+}
+
+func (pa *PrometheusAdapter) PrintQuery() {
+	for _, query := range pa.queries {
+		fmt.Println(query.AsString())
+	}
 }
 
 func (pa *PrometheusAdapter) Query(metricsChan chan<- *domain.MetricsMatrix) {

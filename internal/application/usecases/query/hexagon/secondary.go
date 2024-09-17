@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hanapedia/metrics-processor/internal/application/usecases/query"
 	"github.com/hanapedia/metrics-processor/pkg/promql"
 )
 
@@ -18,7 +19,7 @@ const (
 
 // NewSecondaryCountQuery create secondary adapter invocation count query
 func NewSecondaryCountQuery(variant SecondaryDurationVariant, filters []promql.Filter, rateDuration time.Duration) *promql.Query {
-	var countQuery MetricsName
+	var countQuery query.MetricsName
 	switch variant {
 	case Task:
 		countQuery = TaskDurationCount
@@ -34,8 +35,8 @@ func NewSecondaryCountQuery(variant SecondaryDurationVariant, filters []promql.F
 
 // NewAvgSecondaryDurationQuery create average secondary adapter Duration
 func NewAvgSecondaryDurationQuery(variant SecondaryDurationVariant, filters []promql.Filter, rateDuration time.Duration) *promql.Query {
-	var sumQuery MetricsName
-	var countQuery MetricsName
+	var sumQuery query.MetricsName
+	var countQuery query.MetricsName
 	switch variant {
 	case Task:
 		sumQuery = TaskDurationSum
@@ -60,7 +61,7 @@ func NewAvgSecondaryDurationQuery(variant SecondaryDurationVariant, filters []pr
 
 // NewPercentileSecondaryDurationQuery create query for given percentile for secondary duration
 func NewPercentileSecondaryDurationQuery(variant SecondaryDurationVariant, filters []promql.Filter, rateDuration time.Duration, percentile float32) *promql.Query {
-	var bucketQuery MetricsName
+	var bucketQuery query.MetricsName
 	switch variant {
 	case Task:
 		bucketQuery = TaskDurationBucket
@@ -76,8 +77,8 @@ func NewPercentileSecondaryDurationQuery(variant SecondaryDurationVariant, filte
 
 // NewThresholdSecondaryDurationQuery create query for ratio under percentile for secondary duration
 func NewThresholdBucketSecondaryDurationQuery(variant SecondaryDurationVariant, filters []promql.Filter, rateDuration time.Duration, le float32) *promql.Query {
-	var bucketQuery MetricsName
-	var countQuery MetricsName
+	var bucketQuery query.MetricsName
+	var countQuery query.MetricsName
 	switch variant {
 	case Task:
 		bucketQuery = TaskDurationBucket

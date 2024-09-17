@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/hanapedia/metrics-processor/internal/application/usecases/query"
+	"github.com/hanapedia/metrics-processor/internal/application/usecases/query/container"
 	"github.com/hanapedia/metrics-processor/internal/domain"
 	"github.com/hanapedia/metrics-processor/internal/infrastructure/prometheus"
 	"github.com/hanapedia/metrics-processor/pkg/promql"
@@ -40,12 +41,12 @@ func PrometheusQueryAdapter(config *domain.Config) *prometheus.PrometheusAdapter
 		query.CreateClientWriteBytesQuery(config.Namespace, rateDuration),
 
 		// resource metrics
-		query.CreateCpuUsageQuery([]promql.Filter{
+		container.CreateCpuUsageQuery([]promql.Filter{
 			promql.NewFilter("namespace", "=", config.Namespace),
 			promql.NewFilter("container", "=", config.WorkloadContainers),
 		},
 			rateDuration),
-		query.CreateMemoryUsageQuery([]promql.Filter{
+		container.CreateMemoryUsageQuery([]promql.Filter{
 			promql.NewFilter("namespace", "=", config.Namespace),
 			promql.NewFilter("container", "=", config.WorkloadContainers),
 		}),

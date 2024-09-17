@@ -22,6 +22,19 @@ var hexagonCmd = &cobra.Command{
 	},
 }
 
+// hexagonDryCmd represents the hexagon dry command
+var hexagonDryCmd = &cobra.Command{
+	Use:   "hexagon-dry",
+	Short: "View Queries for Hexagon metrics",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		config := config.NewConfigFromEnv()
+		prometheusAdapter := usecases.HexagonPrometheusQueryAdapter(config)
+		prometheusAdapter.PrintQuery()
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(hexagonCmd)
+	rootCmd.AddCommand(hexagonDryCmd)
 }

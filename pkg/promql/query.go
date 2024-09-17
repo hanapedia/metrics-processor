@@ -73,12 +73,22 @@ func (q *Query) SumBy(byStrs []string) *Query {
 	return q
 }
 
+func (q *Query) MinBy(byStrs []string) *Query {
+	q.q = fmt.Sprintf("min by (%s)(%s)", strings.Join(byStrs, ","), q.q)
+	return q
+}
+
 func (q *Query) HistogramQuantile(quantile float32) *Query {
 	if quantile >= 1 || quantile <= 0 {
 		slog.Warn("Invalid quantile, defaulting to 0.5")
 		quantile = 0.5
 	}
 	q.q = fmt.Sprintf("histogram_quantile(%v,%s)", quantile, q.q)
+	return q
+}
+
+func (q *Query) Subtract(aq *Query) *Query {
+	q.q = fmt.Sprintf("%s - %s", q.q, aq.q)
 	return q
 }
 
@@ -94,5 +104,10 @@ func (q *Query) MultiplyByConstant(c int) *Query {
 
 func (q *Query) LabelReplace(target, source, pattern string) *Query {
 	q.q = fmt.Sprintf(`label_replace(%s,"%s","$1","%s","%s")`, q.q, target, source, pattern)
+	return q
+}
+
+func (q *Query) Offset(duration time.Duration) *Query {
+	q.q = fmt.Sprintf("%s offset %s", q.q, duration)
 	return q
 }
