@@ -100,15 +100,11 @@ func (pa *PrometheusAdapter) runQuery(query *promql.Query, metricsChan chan<- *d
 
 func (pa *PrometheusAdapter) handleMatrixResult(name string, matrix *model.Matrix) *domain.MetricsMatrix {
 	metricsMatrix := domain.MetricsMatrix{
-		Name:       name,
-		Matrix:     make(map[string][]float64),
-		Timestamps: []int64{},
+		Name:   name,
+		Matrix: make(map[string][]model.SamplePair),
 	}
-	for i, sampleStream := range *matrix {
-		if i == 0 {
-			metricsMatrix.Timestamps = extractTimestamps(sampleStream.Values)
-		}
-		metricsMatrix.Matrix[sampleStream.Metric.String()] = extractSampleValues(sampleStream.Values)
+	for _, sampleStream := range *matrix {
+		metricsMatrix.Matrix[sampleStream.Metric.String()] = sampleStream.Values
 	}
 
 	return &metricsMatrix
