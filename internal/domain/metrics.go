@@ -1,10 +1,11 @@
 package domain
 
+import "github.com/prometheus/common/model"
+
 type QueryName = string
 
 type MetricsMatrix struct {
 	Name string `json:"name"`
 	// LabelType indicates what the string keys in Matrix represent. e.g. deployment
-	Matrix      map[string][]float64         `json:"matrix,omitempty"`
-	Timestamps  []int64                      `json:"timestamps"`
+	Matrix map[string][]model.SamplePair `json:"matrix,omitempty"`
 }
