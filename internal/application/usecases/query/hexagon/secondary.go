@@ -71,8 +71,8 @@ func NewPercentileSecondaryDurationQuery(variant SecondaryDurationVariant, filte
 	return promql.NewQuery(bucketQuery.AsString()).
 		Filter(filters).
 		Rate(rateDuration).
-		HistogramQuantile(percentile).
-		SumBy([]string{PRIMARY_SUM_KEY, SECONDARY_SUM_KEY, "le"})
+		SumBy([]string{PRIMARY_SUM_KEY, SECONDARY_SUM_KEY, "le"}).
+		HistogramQuantile(percentile)
 }
 
 // NewThresholdSecondaryDurationQuery create query for ratio under percentile for secondary duration
