@@ -10,7 +10,6 @@ type EnvVars struct {
 	METRICS_QUERY_ENDPOINT string
 	END_TIME               string
 	DURATION               string
-	RATE_DURATION          string
 	STEP                   string
 	AWS_REGION             string
 	S3_BUCKET              string
@@ -24,7 +23,6 @@ var defaults = EnvVars{
 	METRICS_QUERY_ENDPOINT: "http://localhost:9090",
 	END_TIME:               "",
 	DURATION:               "30m",
-	RATE_DURATION:          "5m",
 	STEP:                   "15s",
 	AWS_REGION:             "ap-northeast-1",
 	S3_BUCKET:              "test",
@@ -49,7 +47,6 @@ func loadEnvVariables() *EnvVars {
 		METRICS_QUERY_ENDPOINT: readEnv("METRICS_QUERY_ENDPOINT", defaults.METRICS_QUERY_ENDPOINT),
 		END_TIME:               readEnv("END_TIME", defaults.END_TIME),
 		DURATION:               readEnv("DURATION", defaults.DURATION),
-		RATE_DURATION:          readEnv("RATE_DURATION", defaults.RATE_DURATION),
 		STEP:                   readEnv("STEP", defaults.STEP),
 		AWS_REGION:             readEnv("AWS_REGION", defaults.AWS_REGION),
 		S3_BUCKET:              readEnv("S3_BUCKET", defaults.S3_BUCKET),
