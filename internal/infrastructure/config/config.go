@@ -23,6 +23,12 @@ func NewConfigFromEnv() *domain.Config {
 		duration = 30 * time.Minute
 	}
 
+	rateDuration, err := time.ParseDuration(GetEnvs().RATE_DURATION)
+	if err != nil {
+		slog.Warn("Failed to parse RATE_DURATION. Using 5m", "err", err)
+		rateDuration = 5 * time.Minute
+	}
+
 	step, err := time.ParseDuration(GetEnvs().STEP)
 	if err != nil {
 		slog.Warn("Failed to parse STEP", "err", err)
@@ -33,6 +39,7 @@ func NewConfigFromEnv() *domain.Config {
 		MetricsQueryEndpoint: GetEnvs().METRICS_QUERY_ENDPOINT,
 		EndTime:              endTime,
 		Duration:             duration,
+		RateDuration:         rateDuration,
 		Step:                 step,
 		AWSRegion:            GetEnvs().AWS_REGION,
 		S3Bucket:             GetEnvs().S3_BUCKET,

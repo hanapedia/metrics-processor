@@ -4,7 +4,6 @@ import (
 	"log/slog"
 	"os"
 	"slices"
-	"time"
 
 	"github.com/hanapedia/metrics-processor/internal/application/usecases/query"
 	"github.com/hanapedia/metrics-processor/internal/application/usecases/query/container"
@@ -21,7 +20,7 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 		os.Exit(1)
 	}
 
-	rateDuration := 5 * time.Minute
+	rateDuration := config.RateDuration
 	defaultSvc := "service-.*"
 	filters := []promql.Filter{
 		promql.NewFilter("experiment", "=~", config.K6TestName),
