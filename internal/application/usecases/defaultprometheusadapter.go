@@ -45,14 +45,14 @@ func PrometheusQueryAdapter(config *domain.Config) *prometheus.PrometheusAdapter
 			promql.NewFilter("namespace", "=", config.Namespace),
 			promql.NewFilter("container", "=", config.WorkloadContainers),
 		},
-			rateDuration),
+			query.RateConfig{Duration: rateDuration}),
 		container.CreateMemoryUsageQuery([]promql.Filter{
 			promql.NewFilter("namespace", "=", config.Namespace),
 			promql.NewFilter("container", "=", config.WorkloadContainers),
 		}),
 
 		// k6 metrics
-		query.CreateK6IterationRateQuery(config.K6TestName, rateDuration),
+		query.CreateK6IterationRateQuery(config.K6TestName, query.RateConfig{Duration: rateDuration}),
 		query.CreateK6BytesReceivedQuery(config.K6TestName, rateDuration),
 		query.CreateK6BytesSentQuery(config.K6TestName, rateDuration),
 		query.CreateAvgK6IterationDurationQuery(config.K6TestName),

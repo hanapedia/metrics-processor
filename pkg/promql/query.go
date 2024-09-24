@@ -68,6 +68,11 @@ func (q *Query) Rate(duration time.Duration) *Query {
 	return q
 }
 
+func (q *Query) IRate(duration time.Duration) *Query {
+	q.q = fmt.Sprintf("irate(%s[%s])", q.q, duration)
+	return q
+}
+
 func (q *Query) SumBy(byStrs []string) *Query {
 	q.q = fmt.Sprintf("sum by (%s)(%s)", strings.Join(byStrs, ","), q.q)
 	return q
