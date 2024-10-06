@@ -46,7 +46,7 @@ func TestNewPrometheusAdapter(t *testing.T) {
 	}
 
 	if matrix, ok := result.(model.Matrix); ok {
-		_ = adapter.handleMatrixResult("test-query", &matrix)
+		_ = adapter.handleMatrixResult("test-query", &matrix, adapter.queryRange.End)
 		/* jsonData, err := json.Marshal(metricsMatrix) */
 		/* if err != nil { */
 		/* 	slog.Error("Failed to encode to json", "err", err, "name", metricsMatrix.Name) */

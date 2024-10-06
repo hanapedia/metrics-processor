@@ -8,3 +8,4 @@
 **/prepare_docker_hub_secret.sh
 
 bin
+tmp

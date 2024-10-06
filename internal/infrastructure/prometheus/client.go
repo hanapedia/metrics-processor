@@ -92,16 +92,17 @@ func (pa *PrometheusAdapter) runQuery(query *promql.Query, metricsChan chan<- *d
 	}
 
 	if matrix, ok := result.(model.Matrix); ok {
-		metricsChan <- pa.handleMatrixResult(query.Name, &matrix)
+		metricsChan <- pa.handleMatrixResult(query.Name, &matrix, pa.queryRange.End)
 	} else {
 		slog.Warn("Query did not return matrix. Skipping.", "name", query.Name, "query", query.AsString())
 	}
 }
 
-func (pa *PrometheusAdapter) handleMatrixResult(name string, matrix *model.Matrix) *domain.MetricsMatrix {
+func (pa *PrometheusAdapter) handleMatrixResult(name string, matrix *model.Matrix, end time.Time) *domain.MetricsMatrix {
 	metricsMatrix := domain.MetricsMatrix{
 		Name:   name,
 		Matrix: make(map[string][]model.SamplePair),
+		End:    float64(end.UnixMilli()) / 10e3,
 	}
 	for _, sampleStream := range *matrix {
 		metricsMatrix.Matrix[sampleStream.Metric.String()] = sampleStream.Values
