@@ -79,6 +79,24 @@ func NewPercentileSecondaryDurationQuery(variant SecondaryDurationVariant, filte
 		HistogramQuantile(percentile)
 }
 
+// NewSecondaryDurationHistogramQuery create query for histogram of secondary duration
+func NewSecondaryDurationHistogramQuery(variant SecondaryDurationVariant, filters []promql.Filter, rateConfig query.RateConfig) *promql.Query {
+	var bucketQuery query.MetricsName
+	switch variant {
+	case Task:
+		bucketQuery = TaskDurationBucket
+	case Call:
+		bucketQuery = CallDurationBucket
+	}
+	query := promql.NewQuery(bucketQuery.AsString()).Filter(filters)
+	if rateConfig.IsInstant {
+		return query.IRate(rateConfig.Duration).
+			SumBy([]string{PRIMARY_SUM_KEY, SECONDARY_SUM_KEY, "le"})
+	}
+	return query.Rate(rateConfig.Duration).
+		SumBy([]string{PRIMARY_SUM_KEY, SECONDARY_SUM_KEY, "le"})
+}
+
 // NewThresholdSecondaryDurationQuery create query for ratio under percentile for secondary duration
 func NewThresholdBucketSecondaryDurationQuery(variant SecondaryDurationVariant, filters []promql.Filter, rateConfig query.RateConfig, le float32) *promql.Query {
 	var bucketQuery query.MetricsName

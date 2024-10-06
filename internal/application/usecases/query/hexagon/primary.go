@@ -35,6 +35,17 @@ func NewPercentilePrimaryDurationQuery(filters []promql.Filter, rateConfig query
 		HistogramQuantile(percentile)
 }
 
+// NewPrimaryDurationHistogramQuery create query for histogram for primary duration
+func NewPrimaryDurationHistogramQuery(filters []promql.Filter, rateConfig query.RateConfig) *promql.Query {
+	query := promql.NewQuery(PrimaryDurationBucket.AsString()).Filter(filters)
+	if rateConfig.IsInstant {
+		return query.IRate(rateConfig.Duration).
+			SumBy([]string{PRIMARY_SUM_KEY, "le"})
+	}
+	return query.Rate(rateConfig.Duration).
+		SumBy([]string{PRIMARY_SUM_KEY, "le"})
+}
+
 // NewPrimaryInProgressQuery create query for primary adapter in progress
 func NewPrimaryInProgressQuery(filters []promql.Filter) *promql.Query {
 	return promql.NewQuery(PrimaryAdapterInProgress.AsString()).
