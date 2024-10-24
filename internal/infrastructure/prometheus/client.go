@@ -102,7 +102,7 @@ func (pa *PrometheusAdapter) handleMatrixResult(name string, matrix *model.Matri
 	metricsMatrix := domain.MetricsMatrix{
 		Name:   name,
 		Matrix: make(map[string][]model.SamplePair),
-		End:    float64(end.UnixMilli()) / 10e3,
+		End:    float64(end.UnixMilli()) / 10e2,
 	}
 	for _, sampleStream := range *matrix {
 		metricsMatrix.Matrix[sampleStream.Metric.String()] = sampleStream.Values

@@ -10,7 +10,8 @@ import (
 // When container is recreated, the metrics for old container is reported for few minutes even after killed.
 // Thus, min by is used to record the newly created container's metrics
 func CreateCpuUsageQuery(filters []promql.Filter, rateConfig query.RateConfig) *promql.Query {
-	usage := promql.NewQuery(ContainerCpuUsageSeconds.AsString()).Filter(filters)
+	cAdvisorFilters := append(filters, promql.NewFilter("metrics_path", "=", "/metrics/cadvisor/hexagon")) // requires custom service monitor for kubelet
+	usage := promql.NewQuery(ContainerCpuUsageSeconds.AsString()).Filter(cAdvisorFilters)
 	if rateConfig.IsInstant {
 		usage.IRate(rateConfig.Duration).MinBy([]string{"pod"})
 	} else {
@@ -39,8 +40,9 @@ func CreateCpuThrottleQuery(filters []promql.Filter, rateConfig query.RateConfig
 // When container is recreated, the metrics for old container is reported for few minutes even after killed.
 // Thus, min by is used to record the newly created container's metrics
 func CreateMemoryUsageQuery(filters []promql.Filter) *promql.Query {
+	cAdvisorFilters := append(filters, promql.NewFilter("metrics_path", "=", "/metrics/cadvisor/hexagon")) // requires custom service monitor
 	usage := promql.NewQuery(ContainerMemoryWorkingSetBytes.AsString()).
-		Filter(filters).
+		Filter(cAdvisorFilters).
 		MinBy([]string{"pod"})
 
 	limit := limitQuery(append(filters, promql.NewFilter("resource", "=", "memory")))

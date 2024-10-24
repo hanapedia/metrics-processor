@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -53,6 +54,51 @@ func (sa *S3Adapter) Save(metricsChan <-chan *domain.MetricsMatrix) {
 			slog.Error("Failed to upload to s3", "err", err, "bucketName", sa.bucketName, "key", key)
 		}
 	}
+}
+
+func (sa *S3Adapter) ParseEndTime() (float64, error) {
+	// List the first file in the bucket with the prefix
+	resp, err := sa.client.ListObjectsV2(&s3.ListObjectsV2Input{
+		Bucket: aws.String(sa.bucketName),
+		Prefix: aws.String(sa.keyParentDir),
+		MaxKeys: aws.Int64(1), // To get the first file
+	})
+	if err != nil {
+		return 0, fmt.Errorf("Unable to list items in bucket %q, %w", sa.bucketName, err)
+	}
+
+	// Ensure at least one file is returned
+	if len(resp.Contents) == 0 {
+		return 0, fmt.Errorf("No files found with prefix %s", sa.keyParentDir)
+	}
+
+	// Get the first file's key
+	fileKey := *resp.Contents[0].Key
+	slog.Info("Found file", "file", fileKey)
+
+	// Fetch the file content
+	getResp, err := sa.client.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(sa.bucketName),
+		Key:    aws.String(fileKey),
+	})
+	if err != nil {
+		return 0, fmt.Errorf("Unable to download item %q, %w", fileKey, err)
+	}
+	defer getResp.Body.Close()
+
+	// Read the file content
+	body, err := io.ReadAll(getResp.Body)
+	if err != nil {
+		return 0, fmt.Errorf("Failed to read file content, %w", err)
+	}
+
+	// Unmarshal the content into your struct
+	var data domain.MetricsMatrix
+	if err := json.Unmarshal(body, &data); err != nil {
+		return 0, fmt.Errorf("Failed to unmarshal JSON, %w", err)
+	}
+	slog.Info("Successfuly parsed endtime","bucket", sa.bucketName, "parentDir", sa.keyParentDir, "file", fileKey, "end", data.End)
+	return data.End, nil
 }
 
 func getS3Key(prefix, name string) string {
