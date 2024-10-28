@@ -43,7 +43,8 @@ var hexagonRequeryCmd = &cobra.Command{
 		// recreate s3 adapter with updated config
 		writeS3Adapter := usecases.NewS3Adapter(config)
 
-		prometheusAdapter := usecases.HexagonPrometheusQueryAdapter(config)
+		// create subset query
+		prometheusAdapter := usecases.SubsetPrometheusQueryAdapter(config)
 
 		processor := core.NewMetricsProcessor(prometheusAdapter, writeS3Adapter)
 		processor.Process()
@@ -57,7 +58,7 @@ var hexagonRequeryDryCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		config := config.NewConfigFromEnv()
-		prometheusAdapter := usecases.HexagonPrometheusQueryAdapter(config)
+		prometheusAdapter := usecases.SubsetPrometheusQueryAdapter(config)
 		prometheusAdapter.PrintQuery()
 	},
 }
