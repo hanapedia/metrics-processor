@@ -138,3 +138,17 @@ func NewRetryRateQuery(filters []promql.Filter, rateConfig query.RateConfig) *pr
 
 	return retry.Divide(all)
 }
+
+// NewAdaptiveTimeoutQuery create secondary adapter invocation count query
+func NewAdaptiveTimeoutQuery(variant SecondaryDurationVariant, filters []promql.Filter) *promql.Query {
+	var countQuery query.MetricsName
+	switch variant {
+	case Task:
+		countQuery = TaskAdaptiveTimeout
+	case Call:
+		countQuery = CallAdaptiveTimeout
+	}
+
+	query := promql.NewQuery(countQuery.AsString()).Filter(filters)
+	return query.SumBy([]string{PRIMARY_SUM_KEY, SECONDARY_SUM_KEY})
+}

@@ -114,6 +114,8 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 			hexagon.NewRetryRateQuery(filters, rateConfig).
 				SetName(rateConfig.AddSuffix("secondary_retry_rate")), // retry rate
 
+			hexagon.NewAdaptiveTimeoutQuery(hexagon.Call, filters), // adaptive call timeout
+
 			// secondary adatper task metrics
 			hexagon.NewSecondaryCountQuery(hexagon.Task, filters, rateConfig).
 				SetName(rateConfig.AddSuffix("secondary_task_all_count")), // count all
@@ -155,6 +157,7 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 			hexagon.NewSecondaryDurationHistogramQuery(hexagon.Task, statusCBOpenErrFilter, rateConfig).
 				SetName(rateConfig.AddSuffix("secondary_task_cb_err_duration_histogram")), // task p99 duration err
 
+			hexagon.NewAdaptiveTimeoutQuery(hexagon.Task, filters), // adaptive task timeout
 
 			// container metrics
 			container.CreateCpuUsageQuery(containerFilter, rateConfig).
