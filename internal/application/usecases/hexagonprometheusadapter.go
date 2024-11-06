@@ -49,6 +49,10 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 		// container metrics
 		container.CreateMemoryUsageQuery(containerFilter).SetName("memory_usage"),
 		container.CreateContainerRestartsQuery(containerFilter).SetName("container_restarts"),
+
+		// adaptive timeout
+		hexagon.NewAdaptiveTimeoutQuery(hexagon.Call, filters).SetName("adaptive_call_timeout"), // adaptive call timeout
+		hexagon.NewAdaptiveTimeoutQuery(hexagon.Task, filters).SetName("adaptive_task_timeout"), // adaptive task timeout
 	}
 	for _, query := range queries {
 		prometheusAdapter.RegisterQuery(query)
@@ -114,8 +118,6 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 			hexagon.NewRetryRateQuery(filters, rateConfig).
 				SetName(rateConfig.AddSuffix("secondary_retry_rate")), // retry rate
 
-			hexagon.NewAdaptiveTimeoutQuery(hexagon.Call, filters), // adaptive call timeout
-
 			// secondary adatper task metrics
 			hexagon.NewSecondaryCountQuery(hexagon.Task, filters, rateConfig).
 				SetName(rateConfig.AddSuffix("secondary_task_all_count")), // count all
@@ -156,8 +158,6 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 				SetName(rateConfig.AddSuffix("secondary_task_timeout_err_duration_histogram")), // task p99 duration err
 			hexagon.NewSecondaryDurationHistogramQuery(hexagon.Task, statusCBOpenErrFilter, rateConfig).
 				SetName(rateConfig.AddSuffix("secondary_task_cb_err_duration_histogram")), // task p99 duration err
-
-			hexagon.NewAdaptiveTimeoutQuery(hexagon.Task, filters), // adaptive task timeout
 
 			// container metrics
 			container.CreateCpuUsageQuery(containerFilter, rateConfig).
