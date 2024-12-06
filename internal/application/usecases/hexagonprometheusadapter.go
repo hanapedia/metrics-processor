@@ -81,6 +81,12 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 				SetName(rateConfig.AddSuffix("secondary_call_timeout_err_count")), // count timeout
 			hexagon.NewSecondaryCountQuery(hexagon.Call, statusCBOpenErrFilter, rateConfig).
 				SetName(rateConfig.AddSuffix("secondary_call_cb_err_count")), // count cb error
+			hexagon.NewSecondaryRatioQuery(hexagon.Call, statusErrFilter, filters, rateConfig).
+				SetName(rateConfig.AddSuffix("secondary_call_err_rate")), // failure rate
+			hexagon.NewSecondaryRatioQuery(hexagon.Call, statusTimeoutErrFilter, filters, rateConfig).
+				SetName(rateConfig.AddSuffix("secondary_call_timeout_err_rate")), // timeout rate
+			hexagon.NewSecondaryRatioQuery(hexagon.Call, statusCBOpenErrFilter, filters, rateConfig).
+				SetName(rateConfig.AddSuffix("secondary_call_cb_err_rate")), // cb error rate
 			hexagon.NewAvgSecondaryDurationQuery(hexagon.Call, filters, rateConfig).
 				SetName(rateConfig.AddSuffix("avg_secondary_call_all_duration")), // call avg duration all
 			hexagon.NewAvgSecondaryDurationQuery(hexagon.Call, statusOkFilter, rateConfig).

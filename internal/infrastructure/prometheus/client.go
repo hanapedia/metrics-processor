@@ -53,7 +53,7 @@ func (pa *PrometheusAdapter) Len() int {
 
 func (pa *PrometheusAdapter) PrintQuery() {
 	for _, query := range pa.queries {
-		fmt.Println(query.AsString())
+		fmt.Printf("%s: %s\n", query.Name, query.AsString())
 	}
 }
 

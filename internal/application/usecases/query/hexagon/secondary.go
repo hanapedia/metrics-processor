@@ -33,6 +33,28 @@ func NewSecondaryCountQuery(variant SecondaryDurationVariant, filters []promql.F
 	return query.Rate(rateConfig.Duration).SumBy([]string{PRIMARY_SUM_KEY, SECONDARY_SUM_KEY})
 }
 
+// NewSecondaryRatioQuery create query to take ratios of two secondary adapter count queries
+func NewSecondaryRatioQuery(variant SecondaryDurationVariant, numeFilter, denoFilter []promql.Filter, rateConfig query.RateConfig) *promql.Query {
+	var countQuery query.MetricsName
+	switch variant {
+	case Task:
+		countQuery = TaskDurationCount
+	case Call:
+		countQuery = CallDurationCount
+	}
+
+	numeQuery := promql.NewQuery(countQuery.AsString()).Filter(numeFilter)
+	denoQuery := promql.NewQuery(countQuery.AsString()).Filter(denoFilter)
+	if rateConfig.IsInstant {
+		numeQuery.IRate(rateConfig.Duration).SumBy([]string{PRIMARY_SUM_KEY, SECONDARY_SUM_KEY})
+		denoQuery.IRate(rateConfig.Duration).SumBy([]string{PRIMARY_SUM_KEY, SECONDARY_SUM_KEY})
+	} else {
+		numeQuery.Rate(rateConfig.Duration).SumBy([]string{PRIMARY_SUM_KEY, SECONDARY_SUM_KEY})
+		denoQuery.Rate(rateConfig.Duration).SumBy([]string{PRIMARY_SUM_KEY, SECONDARY_SUM_KEY})
+	}
+	return numeQuery.Divide(denoQuery)
+}
+
 // NewAvgSecondaryDurationQuery create average secondary adapter Duration
 func NewAvgSecondaryDurationQuery(variant SecondaryDurationVariant, filters []promql.Filter, rateConfig query.RateConfig) *promql.Query {
 	var sumQuery query.MetricsName
