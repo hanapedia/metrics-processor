@@ -13,4 +13,5 @@ type Config struct {
 	K6TestName           string
 	Namespace            string
 	WorkloadContainers   string
+	QueryTaskMetrics     bool
 }

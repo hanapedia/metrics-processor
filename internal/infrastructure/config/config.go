@@ -29,6 +29,12 @@ func NewConfigFromEnv() *domain.Config {
 		step = 15 * time.Second
 	}
 
+	queryTask, err := strconv.ParseBool(GetEnvs().QUERY_TASK_METRICS)
+	if err != nil {
+		slog.Warn("Failed to parse QUERY_TASK_METRICS", "err", err)
+		queryTask = false
+	}
+
 	return &domain.Config{
 		MetricsQueryEndpoint: GetEnvs().METRICS_QUERY_ENDPOINT,
 		EndTime:              endTime,
@@ -40,6 +46,7 @@ func NewConfigFromEnv() *domain.Config {
 		K6TestName:           GetEnvs().K6_TEST_NAME,
 		Namespace:            GetEnvs().NAMESPACE,
 		WorkloadContainers:   GetEnvs().WORKLOAD_CONTAINERS,
+		QueryTaskMetrics:     queryTask,
 	}
 }
 

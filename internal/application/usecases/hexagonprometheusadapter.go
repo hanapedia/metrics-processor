@@ -52,7 +52,6 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 
 		// adaptive timeout
 		hexagon.NewAdaptiveTimeoutQuery(hexagon.Call, filters).SetName("adaptive_call_timeout"), // adaptive call timeout
-		hexagon.NewAdaptiveTimeoutQuery(hexagon.Task, filters).SetName("adaptive_task_timeout"), // adaptive task timeout
 	}
 	for _, query := range queries {
 		prometheusAdapter.RegisterQuery(query)
@@ -65,12 +64,31 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 			// p99, p50, avg durations
 			// in progress count
 			// success rate
-			hexagon.NewAvgPrimaryDurationQuery(filters, rateConfig).
-				SetName(rateConfig.AddSuffix("avg_primary_duration")),
-			hexagon.NewPercentilePrimaryDurationQuery(filters, rateConfig, 0.99).
-				SetName(rateConfig.AddSuffix("p99_primary_duration")), // p99
-			hexagon.NewPrimaryDurationHistogramQuery(filters, rateConfig).
-				SetName(rateConfig.AddSuffix("primary_duration_histogram")), // p99
+			hexagon.NewAvgPrimaryDurationQuery(statusOkFilter, rateConfig, hexagon.PRIMARY_SUM_KEY).
+				SetName(rateConfig.AddSuffix("avg_primary_ok_duration_per_adapter")),
+			hexagon.NewAvgPrimaryDurationQuery(statusOkFilter, rateConfig, hexagon.SERVICE_SUM_KEY).
+				SetName(rateConfig.AddSuffix("avg_primary_ok_duration_per_service")),
+			hexagon.NewPercentilePrimaryDurationQuery(statusOkFilter, rateConfig, hexagon.PRIMARY_SUM_KEY, 0.99).
+				SetName(rateConfig.AddSuffix("p99_primary_ok_duration_per_adapter")), // p99
+			hexagon.NewPercentilePrimaryDurationQuery(statusOkFilter, rateConfig, hexagon.SERVICE_SUM_KEY, 0.99).
+				SetName(rateConfig.AddSuffix("p99_primary_ok_duration_per_service")), // p99
+			hexagon.NewAvgPrimaryDurationQuery(statusErrFilter, rateConfig, hexagon.PRIMARY_SUM_KEY).
+				SetName(rateConfig.AddSuffix("avg_primary_err_duration_per_adapter")),
+			hexagon.NewAvgPrimaryDurationQuery(statusErrFilter, rateConfig, hexagon.SERVICE_SUM_KEY).
+				SetName(rateConfig.AddSuffix("avg_primary_err_duration_per_service")),
+			hexagon.NewPercentilePrimaryDurationQuery(statusErrFilter, rateConfig, hexagon.PRIMARY_SUM_KEY, 0.99).
+				SetName(rateConfig.AddSuffix("p99_primary_err_duration_per_adapter")), // p99
+			hexagon.NewPercentilePrimaryDurationQuery(statusErrFilter, rateConfig, hexagon.SERVICE_SUM_KEY, 0.99).
+				SetName(rateConfig.AddSuffix("p99_primary_err_duration_per_service")), // p99
+
+			hexagon.NewPrimaryCountQuery(statusOkFilter, rateConfig, hexagon.PRIMARY_SUM_KEY).
+				SetName(rateConfig.AddSuffix("primary_count_per_adapter")), // goodput per primary adapter
+			hexagon.NewPrimaryCountQuery(statusOkFilter, rateConfig, hexagon.SERVICE_SUM_KEY).
+				SetName(rateConfig.AddSuffix("primary_count_per_service")), // goodput per service
+			hexagon.NewPrimaryRatioQuery(statusErrFilter, filters, rateConfig, hexagon.PRIMARY_SUM_KEY).
+				SetName(rateConfig.AddSuffix("primary_failure_rate_per_adapter")), // failure rate
+			hexagon.NewPrimaryRatioQuery(statusErrFilter, filters, rateConfig, hexagon.SERVICE_SUM_KEY).
+				SetName(rateConfig.AddSuffix("primary_failure_rate_per_service")), // failure rate
 
 			// secondary adatper call metrics
 			hexagon.NewSecondaryCountQuery(hexagon.Call, filters, rateConfig).
@@ -124,47 +142,6 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 			hexagon.NewRetryRateQuery(filters, rateConfig).
 				SetName(rateConfig.AddSuffix("secondary_retry_rate")), // retry rate
 
-			// secondary adatper task metrics
-			hexagon.NewSecondaryCountQuery(hexagon.Task, filters, rateConfig).
-				SetName(rateConfig.AddSuffix("secondary_task_all_count")), // count all
-			hexagon.NewSecondaryCountQuery(hexagon.Task, statusOkFilter, rateConfig).
-				SetName(rateConfig.AddSuffix("secondary_task_ok_count")), // count ok
-			hexagon.NewSecondaryCountQuery(hexagon.Task, statusTimeoutErrFilter, rateConfig).
-				SetName(rateConfig.AddSuffix("secondary_task_timeout_err_count")), // count timeout
-			hexagon.NewSecondaryCountQuery(hexagon.Task, statusCBOpenErrFilter, rateConfig).
-				SetName(rateConfig.AddSuffix("secondary_task_cb_err_count")), // count cb error
-			hexagon.NewAvgSecondaryDurationQuery(hexagon.Task, filters, rateConfig).
-				SetName(rateConfig.AddSuffix("avg_secondary_task_all_duration")), // task avg duration all
-			hexagon.NewAvgSecondaryDurationQuery(hexagon.Task, statusOkFilter, rateConfig).
-				SetName(rateConfig.AddSuffix("avg_secondary_task_ok_duration")), // task avg duration ok
-			hexagon.NewAvgSecondaryDurationQuery(hexagon.Task, statusErrFilter, rateConfig).
-				SetName(rateConfig.AddSuffix("avg_secondary_task_err_duration")), // task avg duration err
-			hexagon.NewAvgSecondaryDurationQuery(hexagon.Task, statusTimeoutErrFilter, rateConfig).
-				SetName(rateConfig.AddSuffix("avg_secondary_task_timeout_err_duration")), // task avg duration err
-			hexagon.NewAvgSecondaryDurationQuery(hexagon.Task, statusCBOpenErrFilter, rateConfig).
-				SetName(rateConfig.AddSuffix("avg_secondary_task_cb_err_duration")), // task avg duration err
-			hexagon.NewPercentileSecondaryDurationQuery(hexagon.Task, filters, rateConfig, 0.99).
-				SetName(rateConfig.AddSuffix("p99_secondary_task_all_duration")), // task p99 duration all
-			hexagon.NewPercentileSecondaryDurationQuery(hexagon.Task, statusOkFilter, rateConfig, 0.99).
-				SetName(rateConfig.AddSuffix("p99_secondary_task_ok_duration")), // task p99 duration ok
-			hexagon.NewPercentileSecondaryDurationQuery(hexagon.Task, statusErrFilter, rateConfig, 0.99).
-				SetName(rateConfig.AddSuffix("p99_secondary_task_err_duration")), // task p99 duration err
-			hexagon.NewPercentileSecondaryDurationQuery(hexagon.Task, statusTimeoutErrFilter, rateConfig, 0.99).
-				SetName(rateConfig.AddSuffix("p99_secondary_task_timeout_err_duration")), // task p99 duration err
-			hexagon.NewPercentileSecondaryDurationQuery(hexagon.Task, statusCBOpenErrFilter, rateConfig, 0.99).
-				SetName(rateConfig.AddSuffix("p99_secondary_task_cb_err_duration")), // task p99 duration err
-
-			hexagon.NewSecondaryDurationHistogramQuery(hexagon.Task, filters, rateConfig).
-				SetName(rateConfig.AddSuffix("secondary_task_all_duration_histogram")), // task p99 duration all
-			hexagon.NewSecondaryDurationHistogramQuery(hexagon.Task, statusOkFilter, rateConfig).
-				SetName(rateConfig.AddSuffix("secondary_task_ok_duration_histogram")), // task p99 duration ok
-			hexagon.NewSecondaryDurationHistogramQuery(hexagon.Task, statusErrFilter, rateConfig).
-				SetName(rateConfig.AddSuffix("secondary_task_err_duration_histogram")), // task p99 duration err
-			hexagon.NewSecondaryDurationHistogramQuery(hexagon.Task, statusTimeoutErrFilter, rateConfig).
-				SetName(rateConfig.AddSuffix("secondary_task_timeout_err_duration_histogram")), // task p99 duration err
-			hexagon.NewSecondaryDurationHistogramQuery(hexagon.Task, statusCBOpenErrFilter, rateConfig).
-				SetName(rateConfig.AddSuffix("secondary_task_cb_err_duration_histogram")), // task p99 duration err
-
 			// container metrics
 			container.CreateCpuUsageQuery(containerFilter, rateConfig).
 				SetName(rateConfig.AddSuffix("cpu_usage")),
@@ -179,6 +156,53 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 		}
 		for _, query := range queries {
 			prometheusAdapter.RegisterQuery(query)
+		}
+		if config.QueryTaskMetrics {
+			queries := []*promql.Query{
+				// secondary adatper task metrics
+				hexagon.NewSecondaryCountQuery(hexagon.Task, filters, rateConfig).
+					SetName(rateConfig.AddSuffix("secondary_task_all_count")), // count all
+				hexagon.NewSecondaryCountQuery(hexagon.Task, statusOkFilter, rateConfig).
+					SetName(rateConfig.AddSuffix("secondary_task_ok_count")), // count ok
+				hexagon.NewSecondaryCountQuery(hexagon.Task, statusTimeoutErrFilter, rateConfig).
+					SetName(rateConfig.AddSuffix("secondary_task_timeout_err_count")), // count timeout
+				hexagon.NewSecondaryCountQuery(hexagon.Task, statusCBOpenErrFilter, rateConfig).
+					SetName(rateConfig.AddSuffix("secondary_task_cb_err_count")), // count cb error
+				hexagon.NewAvgSecondaryDurationQuery(hexagon.Task, filters, rateConfig).
+					SetName(rateConfig.AddSuffix("avg_secondary_task_all_duration")), // task avg duration all
+				hexagon.NewAvgSecondaryDurationQuery(hexagon.Task, statusOkFilter, rateConfig).
+					SetName(rateConfig.AddSuffix("avg_secondary_task_ok_duration")), // task avg duration ok
+				hexagon.NewAvgSecondaryDurationQuery(hexagon.Task, statusErrFilter, rateConfig).
+					SetName(rateConfig.AddSuffix("avg_secondary_task_err_duration")), // task avg duration err
+				hexagon.NewAvgSecondaryDurationQuery(hexagon.Task, statusTimeoutErrFilter, rateConfig).
+					SetName(rateConfig.AddSuffix("avg_secondary_task_timeout_err_duration")), // task avg duration err
+				hexagon.NewAvgSecondaryDurationQuery(hexagon.Task, statusCBOpenErrFilter, rateConfig).
+					SetName(rateConfig.AddSuffix("avg_secondary_task_cb_err_duration")), // task avg duration err
+				hexagon.NewPercentileSecondaryDurationQuery(hexagon.Task, filters, rateConfig, 0.99).
+					SetName(rateConfig.AddSuffix("p99_secondary_task_all_duration")), // task p99 duration all
+				hexagon.NewPercentileSecondaryDurationQuery(hexagon.Task, statusOkFilter, rateConfig, 0.99).
+					SetName(rateConfig.AddSuffix("p99_secondary_task_ok_duration")), // task p99 duration ok
+				hexagon.NewPercentileSecondaryDurationQuery(hexagon.Task, statusErrFilter, rateConfig, 0.99).
+					SetName(rateConfig.AddSuffix("p99_secondary_task_err_duration")), // task p99 duration err
+				hexagon.NewPercentileSecondaryDurationQuery(hexagon.Task, statusTimeoutErrFilter, rateConfig, 0.99).
+					SetName(rateConfig.AddSuffix("p99_secondary_task_timeout_err_duration")), // task p99 duration err
+				hexagon.NewPercentileSecondaryDurationQuery(hexagon.Task, statusCBOpenErrFilter, rateConfig, 0.99).
+					SetName(rateConfig.AddSuffix("p99_secondary_task_cb_err_duration")), // task p99 duration err
+
+				hexagon.NewSecondaryDurationHistogramQuery(hexagon.Task, filters, rateConfig).
+					SetName(rateConfig.AddSuffix("secondary_task_all_duration_histogram")), // task p99 duration all
+				hexagon.NewSecondaryDurationHistogramQuery(hexagon.Task, statusOkFilter, rateConfig).
+					SetName(rateConfig.AddSuffix("secondary_task_ok_duration_histogram")), // task p99 duration ok
+				hexagon.NewSecondaryDurationHistogramQuery(hexagon.Task, statusErrFilter, rateConfig).
+					SetName(rateConfig.AddSuffix("secondary_task_err_duration_histogram")), // task p99 duration err
+				hexagon.NewSecondaryDurationHistogramQuery(hexagon.Task, statusTimeoutErrFilter, rateConfig).
+					SetName(rateConfig.AddSuffix("secondary_task_timeout_err_duration_histogram")), // task p99 duration err
+				hexagon.NewSecondaryDurationHistogramQuery(hexagon.Task, statusCBOpenErrFilter, rateConfig).
+					SetName(rateConfig.AddSuffix("secondary_task_cb_err_duration_histogram")), // task p99 duration err
+			}
+			for _, query := range queries {
+				prometheusAdapter.RegisterQuery(query)
+			}
 		}
 	}
 

@@ -17,6 +17,7 @@ type EnvVars struct {
 	K6_TEST_NAME           string
 	NAMESPACE              string
 	WORKLOAD_CONTAINERS    string
+	QUERY_TASK_METRICS     string
 }
 
 var defaults = EnvVars{
@@ -30,6 +31,7 @@ var defaults = EnvVars{
 	K6_TEST_NAME:           "test",
 	NAMESPACE:              "emulation",
 	WORKLOAD_CONTAINERS:    "server|redis",
+	QUERY_TASK_METRICS:     "false",
 }
 
 var envVars *EnvVars
@@ -54,6 +56,7 @@ func loadEnvVariables() *EnvVars {
 		K6_TEST_NAME:           readEnv("K6_TEST_NAME", defaults.K6_TEST_NAME),
 		NAMESPACE:              readEnv("NAMESPACE", defaults.NAMESPACE),
 		WORKLOAD_CONTAINERS:    readEnv("WORKLOAD_CONTAINERS", defaults.WORKLOAD_CONTAINERS),
+		QUERY_TASK_METRICS:     readEnv("QUERY_TASK_METRICS", defaults.QUERY_TASK_METRICS),
 	}
 }
 
