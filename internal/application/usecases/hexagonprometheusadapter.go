@@ -82,13 +82,17 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 				SetName(rateConfig.AddSuffix("p99_primary_err_duration_per_service")), // p99
 
 			hexagon.NewPrimaryCountQuery(statusOkFilter, rateConfig, hexagon.PRIMARY_SUM_KEY).
-				SetName(rateConfig.AddSuffix("primary_count_per_adapter")), // goodput per primary adapter
+				SetName(rateConfig.AddSuffix("primary_ok_count_per_adapter")), // goodput per primary adapter
 			hexagon.NewPrimaryCountQuery(statusOkFilter, rateConfig, hexagon.SERVICE_SUM_KEY).
-				SetName(rateConfig.AddSuffix("primary_count_per_service")), // goodput per service
-			hexagon.NewPrimaryRatioQuery(statusErrFilter, filters, rateConfig, hexagon.PRIMARY_SUM_KEY).
-				SetName(rateConfig.AddSuffix("primary_failure_rate_per_adapter")), // failure rate
-			hexagon.NewPrimaryRatioQuery(statusErrFilter, filters, rateConfig, hexagon.SERVICE_SUM_KEY).
-				SetName(rateConfig.AddSuffix("primary_failure_rate_per_service")), // failure rate
+				SetName(rateConfig.AddSuffix("primary_ok_count_per_service")), // goodput per service
+			hexagon.NewPrimaryCountQuery(filters, rateConfig, hexagon.PRIMARY_SUM_KEY).
+				SetName(rateConfig.AddSuffix("primary_all_count_per_adapter")), // goodput per primary adapter
+			hexagon.NewPrimaryCountQuery(filters, rateConfig, hexagon.SERVICE_SUM_KEY).
+				SetName(rateConfig.AddSuffix("primary_all_count_per_service")), // goodput per service
+			promql.NewQuery("1").Subtract(hexagon.NewPrimaryRatioQuery(statusOkFilter, filters, rateConfig, hexagon.PRIMARY_SUM_KEY).Group()).
+				SetName(rateConfig.AddSuffix("primary_err_rate_per_adapter")), // failure rate
+			promql.NewQuery("1").Subtract(hexagon.NewPrimaryRatioQuery(statusOkFilter, filters, rateConfig, hexagon.SERVICE_SUM_KEY).Group()).
+				SetName(rateConfig.AddSuffix("primary_err_rate_per_service")), // failure rate
 
 			// secondary adatper call metrics
 			hexagon.NewSecondaryCountQuery(hexagon.Call, filters, rateConfig).
@@ -99,7 +103,7 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 				SetName(rateConfig.AddSuffix("secondary_call_timeout_err_count")), // count timeout
 			hexagon.NewSecondaryCountQuery(hexagon.Call, statusCBOpenErrFilter, rateConfig).
 				SetName(rateConfig.AddSuffix("secondary_call_cb_err_count")), // count cb error
-			hexagon.NewSecondaryRatioQuery(hexagon.Call, statusErrFilter, filters, rateConfig).
+			promql.NewQuery("1").Subtract(hexagon.NewSecondaryRatioQuery(hexagon.Call, statusOkFilter, filters, rateConfig).Group()).
 				SetName(rateConfig.AddSuffix("secondary_call_err_rate")), // failure rate
 			hexagon.NewSecondaryRatioQuery(hexagon.Call, statusTimeoutErrFilter, filters, rateConfig).
 				SetName(rateConfig.AddSuffix("secondary_call_timeout_err_rate")), // timeout rate

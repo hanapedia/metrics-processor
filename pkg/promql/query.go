@@ -63,6 +63,11 @@ func (q *Query) AsString() string {
 	return q.q
 }
 
+func (q *Query) Group() *Query {
+	q.q = fmt.Sprintf("(%s)", q.q)
+	return q
+}
+
 func (q *Query) Rate(duration time.Duration) *Query {
 	q.q = fmt.Sprintf("rate(%s[%s])", q.q, duration)
 	return q
