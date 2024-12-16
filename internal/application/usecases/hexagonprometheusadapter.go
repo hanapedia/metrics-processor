@@ -26,10 +26,8 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 		{Name: "1m", Duration: 1 * time.Minute, IsInstant: false},
 		{Name: "1m", Duration: 1 * time.Minute, IsInstant: true},
 	}
-	defaultSvc := "service-.*"
 	filters := []promql.Filter{
 		promql.NewFilter("experiment", "=~", config.K6TestName),
-		promql.NewFilter("service", "=~", defaultSvc),
 		promql.NewFilter("namespace", "=", config.Namespace),
 	}
 	statusOkFilter := append(slices.Clone(filters), promql.NewFilter("status", "=~", "ok"))
