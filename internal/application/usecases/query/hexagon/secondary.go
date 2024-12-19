@@ -174,3 +174,11 @@ func NewAdaptiveTimeoutQuery(variant SecondaryDurationVariant, filters []promql.
 	query := promql.NewQuery(countQuery.AsString()).Filter(filters)
 	return query.SumBy([]string{PRIMARY_SUM_KEY, SECONDARY_SUM_KEY})
 }
+
+// NewAdaptiveTimeoutQuery create secondary adapter invocation count query
+func NewAdaptiveTimeoutCapacityEstimateQuery(filters []promql.Filter) *promql.Query {
+	capacityQuery := CallAdaptiveTimeoutCapacityEstimate
+
+	query := promql.NewQuery(capacityQuery.AsString()).Filter(filters)
+	return query.SumBy([]string{PRIMARY_SUM_KEY, SECONDARY_SUM_KEY})
+}

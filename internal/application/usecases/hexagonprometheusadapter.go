@@ -50,6 +50,7 @@ func HexagonPrometheusQueryAdapter(config *domain.Config) *prometheus.Prometheus
 
 		// adaptive timeout
 		hexagon.NewAdaptiveTimeoutQuery(hexagon.Call, filters).SetName("adaptive_call_timeout"), // adaptive call timeout
+		hexagon.NewAdaptiveTimeoutCapacityEstimateQuery(filters).SetName("adaptive_call_timeout_capacity_estimate"), // adaptive call timeout capacity estimate
 	}
 	for _, query := range queries {
 		prometheusAdapter.RegisterQuery(query)
